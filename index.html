@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bingo Marty 🎉</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2em 1em;
+      text-align: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "18";
+      position: absolute;
+      font-size: 35rem;
+      color: rgba(0, 0, 0, 0.03);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    h1, p {
+      z-index: 1;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      max-width: 650px;
+      width: 100%;
+      margin-top: 1em;
+      z-index: 1;
+    }
+
+    .cell {
+      background: white;
+      border: 2px solid #aaa;
+      padding: 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      user-select: none;
+    }
+
+    .cell:hover {
+      background-color: #eee;
+    }
+
+    .cell.active {
+      background-color: #222;
+      color: white;
+      pointer-events: none;
+    }
+
+    .reset-btn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .intro-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #222;
+      font-size: 2em;
+      font-weight: bold;
+      z-index: 999;
+      animation: fadeOut 2.5s ease forwards;
+      animation-delay: 2s;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .cell {
+        padding: 14px;
+        font-size: 0.85em;
+      }
+
+      body::before {
+        font-size: 20rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="intro" class="intro-screen">
+    🎉 Witaj na 18-stce Marty! 🎉
+  </div>
+
+  <h1>🖤 BINGO MARTY 18 🖤</h1>
+  <p>Miłej zabawy!</p>
+  <div class="grid" id="bingoGrid"></div>
+  <button class="reset-btn" onclick="resetBoard()">Zresetuj planszę</button>
+
+  <audio id="clapSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_88cc0243ee.mp3?filename=small-applause-6695.mp3"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const tasks = [
+      "Napij się z mamą solenizantki",
+      "Zrób zdjęcie z 3 osobami naraz",
+      "Zatańcz z kimś z rodziny",
+      "Opowiedz żart i kogoś rozśmiesz",
+      "Wypij coś z kimś, kogo dopiero poznałeś/aś",
+      "Zrób selfie z solenizantką",
+      "Pocałuj kogoś w policzek",
+      "Zatańcz solo",
+      "Wypij kieliszek jednym duszkiem",
+      "Zaśpiewaj chociaż refren piosenki",
+      "Przybij piątkę 5 osobom",
+      "Powiedz toast",
+      "Zatańcz w parze",
+      "Opowiedz wspomnienie z Martą",
+      "Zrób śmieszne zdjęcie",
+      "Spróbuj każdego jedzenia",
+      "Zgub coś i to znajdź",
+      "Zatańcz z kimś starszym",
+      "Wypij coś różowego",
+      "Zrób szalone story na insta",
+      "Przypomnij sobie coś z dzieciństwa Marty",
+      "Przedstaw się komuś nowemu",
+      "Zatańcz w kółku",
+      "Zrób shot z 2 osobami naraz",
+      "Zatańcz na stole (albo krześle)"
+    ];
+
+    const grid = document.getElementById("bingoGrid");
+    const clapSound = document.getElementById("clapSound");
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function createBoard() {
+      grid.innerHTML = "";
+      const board = [...tasks];
+      shuffle(board);
+      for (let i = 0; i < 25; i++) {
+        const div = document.createElement("div");
+        div.className = "cell";
+        div.innerText = board[i];
+        div.addEventListener("click", () => {
+          if (!div.classList.contains("active")) {
+            div.classList.add("active");
+            checkWin();
+          }
+        });
+        grid.appendChild(div);
+      }
+    }
+
+    function resetBoard() {
+      createBoard();
+    }
+
+    function checkWin() {
+      const active = document.querySelectorAll(".cell.active").length;
+      if (active === 5) {
+        clapSound.play();
+        confettiBoom();
+      }
+    }
+
+    function confettiBoom() {
+      const duration = 2 * 1000;
+      const end = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+      const interval = setInterval(() => {
+        const timeLeft = end - Date.now();
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+        }
+
+        confetti({
+          particleCount: 50,
+          origin: { x: Math.random(), y: Math.random() - 0.2 },
+          ...defaults
+        });
+      }, 200);
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("intro").style.display = "none";
+        createBoard();
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
