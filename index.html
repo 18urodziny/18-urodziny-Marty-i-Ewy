@@ -2,11 +2,12 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>18-stka Marty i Ewy 🎉</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bingo Marty 🎉</title>
   <style>
     body {
-      margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
       background-color: #000;
       color: silver;
       display: flex;
@@ -17,13 +18,16 @@
       text-align: center;
       padding: 1em;
     }
+
     h1 {
       font-size: 2em;
-      margin-bottom: 0.3em;
+      margin-bottom: 0.2em;
     }
+
     p {
       margin-bottom: 1.5em;
     }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -31,6 +35,7 @@
       max-width: 600px;
       width: 100%;
     }
+
     .cell {
       background: #111;
       border: 2px solid silver;
@@ -40,15 +45,20 @@
       transition: 0.2s;
       user-select: none;
       font-size: 0.9em;
+      min-height: 60px;
+      word-wrap: break-word;
     }
+
     .cell:hover {
       background: #222;
     }
+
     .cell.active {
       background-color: silver;
       color: black;
       pointer-events: none;
     }
+
     .reset-btn {
       margin-top: 20px;
       padding: 10px 20px;
@@ -59,6 +69,7 @@
       cursor: pointer;
       font-size: 1em;
     }
+
     .intro-screen {
       position: fixed;
       top: 0; left: 0;
@@ -70,30 +81,66 @@
       justify-content: center;
       color: silver;
       font-size: 2em;
-      z-index: 9999;
-      user-select: none;
+      z-index: 999;
+      animation: fadeOut 2.5s ease forwards;
+      animation-delay: 1.8s;
+      padding: 1em;
+      text-align: center;
     }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
     @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
       .cell {
-        padding: 14px;
-        font-size: 0.8em;
+        padding: 12px;
+        font-size: 0.75em;
+        line-height: 1.3em;
+        border-radius: 8px;
+      }
+
+      h1 {
+        font-size: 1.4em;
+      }
+
+      p {
+        font-size: 0.95em;
+      }
+
+      .reset-btn {
+        width: 100%;
+        font-size: 0.95em;
+        padding: 10px;
+      }
+
+      .intro-screen {
+        font-size: 1.5em;
       }
     }
   </style>
 </head>
 <body>
   <div id="intro" class="intro-screen">
-    🎉 Witaj na 18-stce Marty i Ewy! 🎉
+    <h2>🎉 Witaj na 18-stce Marty! 🎉</h2>
   </div>
 
-  <h1 style="display:none;">🖤 Bingo Marty i Ewy 18 🖤</h1>
+  <h1 style="display:none;">🖤 Bingo Marty 18 🖤</h1>
   <p style="display:none;">Miłej zabawy! 🎈</p>
   <div class="grid" id="bingoGrid" style="display:none;"></div>
   <button class="reset-btn" onclick="resetBoard()" style="display:none;">Zresetuj planszę</button>
 
   <audio id="clapSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_88cc0243ee.mp3?filename=small-applause-6695.mp3"></audio>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
     const tasks = [
       "Napij się z mamą solenizantki",
@@ -128,7 +175,6 @@
     const desc = document.querySelector("p");
     const btn = document.querySelector(".reset-btn");
     const clapSound = document.getElementById("clapSound");
-    const intro = document.getElementById("intro");
 
     function shuffle(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
@@ -188,13 +234,13 @@
 
     window.addEventListener("load", () => {
       setTimeout(() => {
-        intro.style.display = "none";
+        document.getElementById("intro").style.display = "none";
         title.style.display = "block";
         desc.style.display = "block";
         grid.style.display = "grid";
         btn.style.display = "inline-block";
         createBoard();
-      }, 3000); // intro 3 sekundy
+      }, 2000);
     });
   </script>
 </body>
