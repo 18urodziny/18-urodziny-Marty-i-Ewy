@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>18. Urodziny Marty i Ewy 🎉</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fff0f5, #e0f7fa);
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .intro {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #fff0f5, #e0f7fa);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .intro h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1em;
+    }
+
+    .intro button {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #ff69b4;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .intro button:hover {
+      background-color: #e64990;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      max-width: 700px;
+      width: 100%;
+      margin-top: 30px;
+      display: none;
+    }
+
+    .cell {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.2s;
+      min-height: 70px;
+      user-select: none;
+    }
+
+    .cell:hover {
+      background: #f0f0f0;
+    }
+
+    .cell.active {
+      background-color: #4CAF50;
+      color: white;
+      pointer-events: none;
+    }
+
+    #winMessage {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 20;
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    #winMessage button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .cell {
+        font-size: 0.85rem;
+        min-height: 60px;
+      }
+
+      .intro h1 {
+        font-size: 1.8rem;
+      }
+
+      #winMessage {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="intro" id="intro">
+    <h1>🎉 18. Urodziny Marty i Ewy 🎉</h1>
+    <p>Kliknij przycisk, aby rozpocząć zabawę!</p>
+    <button onclick="startGame()">Zaczynamy!</button>
+  </div>
+
+  <div class="grid" id="bingoGrid"></div>
+
+  <div id="winMessage">
+    <div>🎉 Gratulacje! 🎉<br><br>Wygrałeś/aś!<br>Zapraszamy po nagrodę<br>do Ewy lub Marty 🥳</div>
+    <button onclick="closeWin()">Zamknij</button>
+  </div>
+
+  <audio id="clapSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_88cc0243ee.mp3?filename=small-applause-6695.mp3"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const tasks = [
+      "Zadanie 1", "Zadanie 2", "Zadanie 3", "Zadanie 4", "Zadanie 5",
+      "Zadanie 6", "Zadanie 7", "Zadanie 8", "Zadanie 9", "Zadanie 10",
+      "Zadanie 11", "Zadanie 12", "Zadanie 13", "Zadanie 14", "Zadanie 15",
+      "Zadanie 16", "Zadanie 17", "Zadanie 18", "Zadanie 19", "Zadanie 20",
+      "Zadanie 21", "Zadanie 22", "Zadanie 23", "Zadanie 24", "Zadanie 25"
+    ];
+
+    const grid = document.getElementById("bingoGrid");
+    const winMessage = document.getElementById("winMessage");
+    const clapSound = document.getElementById("clapSound");
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function startGame() {
+      document.getElementById("intro").style.display = "none";
+      grid.style.display = "grid";
+      buildGrid();
+    }
+
+    function buildGrid() {
+      shuffle(tasks);
+      tasks.forEach(task => {
+        const div = document.createElement("div");
+        div.className = "cell";
+        div.textContent = task;
+        div.addEventListener("click", () => {
+          div.classList.add("active");
+          checkProgress();
+        });
+        grid.appendChild(div);
+      });
+    }
+
+    function checkProgress() {
+      const activeCount = document.querySelectorAll(".cell.active").length;
+      if (activeCount === 5) {
+        triggerConfetti();
+      }
+      if (activeCount === 25) {
+        setTimeout(() => {
+          clapSound.play();
+          winMessage.style.display = "flex";
+        }, 400);
+      }
+    }
+
+    function triggerConfetti() {
+      const duration = 2000;
+      const end = Date.now() + duration;
+      const defaults = { startVelocity: 20, spread: 360, ticks: 60, zIndex: 1000 };
+
+      const interval = setInterval(() => {
+        if (Date.now() > end) {
+          clearInterval(interval);
+        }
+        confetti({ particleCount: 50, ...defaults });
+      }, 200);
+    }
+
+    function closeWin() {
+      winMessage.style.display = "none";
+    }
+  </script>
+</body>
+</html>
