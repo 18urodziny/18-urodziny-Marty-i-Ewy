@@ -8,80 +8,68 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f4f4;
+      background: linear-gradient(135deg, #fdfbfb, #ebedee);
       color: #222;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 2em 1em;
       text-align: center;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: "18";
-      position: absolute;
-      font-size: 35rem;
-      color: rgba(0, 0, 0, 0.03);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 0;
+      padding: 1em;
     }
 
     h1, p {
-      z-index: 1;
-      font-weight: 700;
+      margin: 0.5em 0;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      max-width: 650px;
+      gap: 10px;
+      max-width: 600px;
       width: 100%;
-      margin-top: 1em;
-      z-index: 1;
+      margin-top: 20px;
     }
 
     .cell {
-      background: white;
+      background: #fff;
       border: 2px solid #aaa;
       padding: 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.95em;
       cursor: pointer;
+      border-radius: 12px;
       transition: 0.2s;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       user-select: none;
+      font-size: 0.95em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      min-height: 60px;
     }
 
     .cell:hover {
-      background-color: #eee;
+      background: #f2f2f2;
     }
 
     .cell.active {
-      background-color: #222;
+      background-color: #4CAF50;
       color: white;
+      border-color: #388E3C;
       pointer-events: none;
     }
 
     .reset-btn {
       margin-top: 20px;
       padding: 12px 24px;
-      background-color: #222;
+      background-color: #4CAF50;
       color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 1em;
-      font-weight: bold;
+      border-radius: 10px;
       cursor: pointer;
-      z-index: 1;
+      font-size: 1em;
+      transition: background 0.2s;
+    }
+
+    .reset-btn:hover {
+      background-color: #388E3C;
     }
 
     .intro-screen {
@@ -93,12 +81,60 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
       color: #222;
-      font-size: 2em;
-      font-weight: bold;
+      font-size: 2.5em;
       z-index: 999;
       animation: fadeOut 2.5s ease forwards;
-      animation-delay: 2s;
+      animation-delay: 1.8s;
+      text-align: center;
+    }
+
+    .intro-screen::before {
+      content: "18 URODZINY";
+      position: absolute;
+      font-size: 12vw;
+      color: rgba(0, 0, 0, 0.05);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .intro-screen h2 {
+      position: relative;
+      z-index: 2;
+      margin: 0;
+    }
+
+    #winMessage {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #fefefe;
+      color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 2em;
+      z-index: 1000;
+      padding: 2em;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+      animation: popIn 0.6s ease;
+    }
+
+    #winMessage button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
     }
 
     @keyframes fadeOut {
@@ -108,27 +144,48 @@
       }
     }
 
+    @keyframes popIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     @media (max-width: 600px) {
-      .cell {
-        padding: 14px;
-        font-size: 0.85em;
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
       }
 
-      body::before {
-        font-size: 20rem;
+      .cell {
+        padding: 14px;
+        font-size: 0.8em;
+      }
+
+      .intro-screen {
+        font-size: 1.6em;
+      }
+
+      #winMessage {
+        font-size: 1.3em;
       }
     }
   </style>
 </head>
 <body>
   <div id="intro" class="intro-screen">
-    🎉 Witaj na 18-stce Marty! 🎉
+    <h2>🎉 Witaj na 18-stce Marty i Ewy! 🎉</h2>
   </div>
 
-  <h1>🖤 BINGO MARTY 18 🖤</h1>
-  <p>Miłej zabawy!</p>
+  <h1>🎂 Bingo Marty 🎂</h1>
+  <p>Miłej zabawy i powodzenia! 🍀</p>
   <div class="grid" id="bingoGrid"></div>
   <button class="reset-btn" onclick="resetBoard()">Zresetuj planszę</button>
+  <div id="winMessage"></div>
 
   <audio id="clapSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_88cc0243ee.mp3?filename=small-applause-6695.mp3"></audio>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -163,7 +220,11 @@
     ];
 
     const grid = document.getElementById("bingoGrid");
+    const title = document.querySelector("h1");
+    const desc = document.querySelector("p");
+    const btn = document.querySelector(".reset-btn");
     const clapSound = document.getElementById("clapSound");
+    const winMessage = document.getElementById("winMessage");
 
     function shuffle(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
@@ -174,6 +235,7 @@
 
     function createBoard() {
       grid.innerHTML = "";
+      winMessage.style.display = "none";
       const board = [...tasks];
       shuffle(board);
       for (let i = 0; i < 25; i++) {
@@ -196,29 +258,34 @@
 
     function checkWin() {
       const active = document.querySelectorAll(".cell.active").length;
-      if (active === 5) {
+      if (active === 25) {
         clapSound.play();
         confettiBoom();
+        showWinMessage();
       }
     }
 
     function confettiBoom() {
-      const duration = 2 * 1000;
+      const duration = 3000;
       const end = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
-
       const interval = setInterval(() => {
-        const timeLeft = end - Date.now();
-        if (timeLeft <= 0) {
-          clearInterval(interval);
-        }
-
+        if (Date.now() >= end) return clearInterval(interval);
         confetti({
           particleCount: 50,
           origin: { x: Math.random(), y: Math.random() - 0.2 },
           ...defaults
         });
       }, 200);
+    }
+
+    function showWinMessage() {
+      winMessage.innerHTML = `
+        🎉 <div style="font-size: 1.4em; margin: 0.5em 0;"><strong>Gratulacje!</strong></div>
+        <div>Wygrałeś nagrodę!<br>Zgłoś się do Marty bądź Ewy 🎁</div>
+        <button onclick="winMessage.style.display='none'">Zamknij</button>
+      `;
+      winMessage.style.display = "flex";
     }
 
     window.addEventListener("load", () => {
