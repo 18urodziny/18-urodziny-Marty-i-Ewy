@@ -86,12 +86,35 @@
       animation-delay: 1.8s;
       padding: 1em;
       text-align: center;
+      flex-direction: column;
+    }
+
+    #winMessage {
+      display: none;
+      margin-top: 20px;
+      font-size: 1.4em;
+      background-color: #111;
+      border: 2px solid silver;
+      padding: 15px;
+      border-radius: 12px;
+      animation: popIn 0.6s ease;
     }
 
     @keyframes fadeOut {
       to {
         opacity: 0;
         visibility: hidden;
+      }
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
       }
     }
 
@@ -123,7 +146,12 @@
       }
 
       .intro-screen {
-        font-size: 1.5em;
+        font-size: 1.3em;
+        padding: 2em;
+      }
+
+      #winMessage {
+        font-size: 1.2em;
       }
     }
   </style>
@@ -137,6 +165,7 @@
   <p style="display:none;">Miłej zabawy! 🎈</p>
   <div class="grid" id="bingoGrid" style="display:none;"></div>
   <button class="reset-btn" onclick="resetBoard()" style="display:none;">Zresetuj planszę</button>
+  <div id="winMessage"></div>
 
   <audio id="clapSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_88cc0243ee.mp3?filename=small-applause-6695.mp3"></audio>
 
@@ -175,6 +204,7 @@
     const desc = document.querySelector("p");
     const btn = document.querySelector(".reset-btn");
     const clapSound = document.getElementById("clapSound");
+    const winMessage = document.getElementById("winMessage");
 
     function shuffle(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
@@ -185,6 +215,7 @@
 
     function createBoard() {
       grid.innerHTML = "";
+      winMessage.style.display = "none";
       const board = [...tasks];
       shuffle(board);
       for (let i = 0; i < 25; i++) {
@@ -207,14 +238,15 @@
 
     function checkWin() {
       const active = document.querySelectorAll(".cell.active").length;
-      if (active === 5) {
+      if (active === 25) {
         clapSound.play();
         confettiBoom();
+        showWinMessage();
       }
     }
 
     function confettiBoom() {
-      const duration = 2 * 1000;
+      const duration = 3 * 1000;
       const end = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
 
@@ -225,11 +257,16 @@
         }
 
         confetti({
-          particleCount: 40,
+          particleCount: 50,
           origin: { x: Math.random(), y: Math.random() - 0.2 },
           ...defaults
         });
       }, 200);
+    }
+
+    function showWinMessage() {
+      winMessage.innerHTML = "🎉 <strong>Gratulacje! Wygrałeś nagrodę!</strong><br>Zgłoś się do Marty bądź Ewy 🎁";
+      winMessage.style.display = "block";
     }
 
     window.addEventListener("load", () => {
