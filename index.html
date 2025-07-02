@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bingo Marty i Ewy 🎉</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #000;
+      color: silver;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 1em;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 0.2em;
+    }
+
+    p {
+      margin-bottom: 1.5em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .cell {
+      background: #111;
+      border: 2px solid silver;
+      padding: 20px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: 0.2s;
+      user-select: none;
+      font-size: 0.9em;
+      min-height: 60px;
+      word-wrap: break-word;
+    }
+
+    .cell:hover {
+      background: #222;
+    }
+
+    .cell.active {
+      background-color: silver;
+      color: black;
+      pointer-events: none;
+    }
+
+    .reset-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: silver;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .intro-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: silver;
+      font-size: 2em;
+      z-index: 999;
+      animation: fadeOut 2.5s ease forwards;
+      animation-delay: 1.8s;
+      padding: 1em;
+      text-align: center;
+      flex-direction: column;
+    }
+
+    #winMessage {
+      display: none;
+      margin-top: 20px;
+      font-size: 1.4em;
+      background-color: #111;
+      border: 2px solid silver;
+      padding: 15px;
+      border-radius: 12px;
+      animation: popIn 0.6s ease;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .cell {
+        padding: 12px;
+        font-size: 0.75em;
+        line-height: 1.3em;
+        border-radius: 8px;
+      }
+
+      h1 {
+        font-size: 1.4em;
+      }
+
+      p {
+        font-size: 0.95em;
+      }
+
+      .reset-btn {
+        width: 100%;
+        font-size: 0.95em;
+        padding: 10px;
+      }
+
+      .intro-screen {
+        font-size: 1.3em;
+        padding: 2em;
+      }
+
+      #winMessage {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="intro" class="intro-screen">
+    <h2>🎉 Witaj na 18-stce Marty i Ewy! 🎉</h2>
+  </div>
+
+  <h1 style="display:none;">🖤 Bingo Marty i Ewy 18 🖤</h1>
+  <p style="display:none;">Miłej zabawy! 🎈</p>
+  <div class="grid" id="bingoGrid" style="display:none;"></div>
+  <button class="reset-btn" onclick="resetBoard()" style="display:none;">Zresetuj planszę</button>
+  <div id="winMessage"></div>
+
+  <audio id="clapSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_88cc0243ee.mp3?filename=small-applause-6695.mp3"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    const tasks = [
+      "Napij się z mamą solenizantki",
+      "Zrób zdjęcie z 3 osobami naraz",
+      "Zatańcz z kimś z rodziny",
+      "Opowiedz żart i kogoś rozśmiesz",
+      "Wypij coś z kimś, kogo dopiero poznałeś/aś",
+      "Zrób selfie z solenizantką",
+      "Pocałuj kogoś w policzek",
+      "Zatańcz solo",
+      "Wypij kieliszek jednym duszkiem",
+      "Zaśpiewaj chociaż refren piosenki",
+      "Przybij piątkę 5 osobom",
+      "Powiedz toast",
+      "Zatańcz w parze",
+      "Opowiedz wspomnienie z Martą",
+      "Zrób śmieszne zdjęcie",
+      "Spróbuj każdego jedzenia",
+      "Zgub coś i to znajdź",
+      "Zatańcz z kimś starszym",
+      "Wypij coś różowego",
+      "Zrób szalone story na insta",
+      "Przypomnij sobie coś z dzieciństwa Marty",
+      "Przedstaw się komuś nowemu",
+      "Zatańcz w kółku",
+      "Zrób shot z 2 osobami naraz",
+      "Zatańcz na stole (albo krześle)"
+    ];
+
+    const grid = document.getElementById("bingoGrid");
+    const title = document.querySelector("h1");
+    const desc = document.querySelector("p");
+    const btn = document.querySelector(".reset-btn");
+    const clapSound = document.getElementById("clapSound");
+    const winMessage = document.getElementById("winMessage");
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function createBoard() {
+      grid.innerHTML = "";
+      winMessage.style.display = "none";
+      const board = [...tasks];
+      shuffle(board);
+      for (let i = 0; i < 25; i++) {
+        const div = document.createElement("div");
+        div.className = "cell";
+        div.innerText = board[i];
+        div.addEventListener("click", () => {
+          if (!div.classList.contains("active")) {
+            div.classList.add("active");
+            checkWin();
+          }
+        });
+        grid.appendChild(div);
+      }
+    }
+
+    function resetBoard() {
+      createBoard();
+    }
+
+    function checkWin() {
+      const active = document.querySelectorAll(".cell.active").length;
+      if (active === 25) {
+        clapSound.play();
+        confettiBoom();
+        showWinMessage();
+      }
+    }
+
+    function confettiBoom() {
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+      const interval = setInterval(() => {
+        const timeLeft = end - Date.now();
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+        }
+
+        confetti({
+          particleCount: 50,
+          origin: { x: Math.random(), y: Math.random() - 0.2 },
+          ...defaults
+        });
+      }, 200);
+    }
+
+    function showWinMessage() {
+      winMessage.innerHTML = "🎉 <strong>Gratulacje! Wygrałeś nagrodę!</strong><br>Zgłoś się do Marty bądź Ewy 🎁";
+      winMessage.style.display = "block";
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("intro").style.display = "none";
+        title.style.display = "block";
+        desc.style.display = "block";
+        grid.style.display = "grid";
+        btn.style.display = "inline-block";
+        createBoard();
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
